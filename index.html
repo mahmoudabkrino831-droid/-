@@ -1,142 +1,71 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>الحضور والانصراف - QR</title>
-  <link rel="shortcut icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>✅</text></svg>">
-  <link rel="stylesheet" href="styles.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام الحضور - قائمة الموظفين وQR</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>نظام الحضور والانصراف</h1>
-    <nav>
-      <button class="tab-btn active" data-tab="scan">مسح QR/باركود</button>
-      <button class="tab-btn" data-tab="employees">الموظفون</button>
-      <button class="tab-btn" data-tab="logs">السجلات</button>
-      <button class="tab-btn" data-tab="settings">الإعدادات</button>
-    </nav>
-  </header>
-
-  <main>
-    <!-- Scan Tab -->
-    <section id="scan" class="tab active">
-      <h2>مسح QR/باركود للتسجيل</h2>
-      <div class="scanner-wrap">
-        <video id="video" playsinline></video>
-        <canvas id="frame" class="hidden"></canvas>
-        <div id="scan-status">جاري تهيئة الكاميرا…</div>
-        <div class="controls">
-          <label>نوع التسجيل:
-            <select id="scanType">
-              <option value="checkin">دخول</option>
-              <option value="checkout">خروج</option>
-              <option value="absent">غياب</option>
-            </select>
-          </label>
-          <button id="toggleCam">تشغيل/إيقاف الكاميرا</button>
-        </div>
+<header><h1>نظام الحضور والغياب</h1></header>
+<main>
+  <section class="card">
+    <h2>إضافة / تحديث موظف</h2>
+    <form id="empForm">
+      <label>الاسم الكامل<input id="empName" required></label>
+      <label>الرقم (موبايل أو داخلي)<input id="empPhone" placeholder="مثال: 01012345678"></label>
+      <label>تاريخ الميلاد<input id="empDOB" type="date"></label>
+      <label>المعرف (لتوليد QR) <input id="empId" placeholder="مثل EMP-001"></label>
+      <div class="row">
+        <button type="submit">حفظ الموظف</button>
+        <button type="button" id="genId">توليد معرف</button>
       </div>
+    </form>
+  </section>
 
-      <div class="manual">
-        <h3>بديل في حال عدم دعم الكاميرا</h3>
-        <label>أدخل الكود/المعرف يدوياً:
-          <input id="manualCode" placeholder="مثال: EMP-001 أو 12345">
+  <section class="card">
+    <h2>قائمة الموظفين</h2>
+    <table id="empTable">
+      <thead><tr><th>#</th><th>الاسم</th><th>الرقم</th><th>تاريخ الميلاد</th><th>المعرف</th><th>QR</th><th>إجراءات</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="actions">
+      <button id="downloadEmployees">تحميل CSV للموظفين</button>
+      <button id="clearEmployees" class="danger">حذف الكل</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>مسح / تسجيل</h2>
+    <div class="scanner">
+      <video id="video" playsinline></video>
+      <canvas id="frame" class="hidden"></canvas>
+      <div id="scan-status">جاهز</div>
+      <div class="controls">
+        <label>نوع التسجيل
+          <select id="scanType">
+            <option value="checkin">دخول</option>
+            <option value="checkout">خروج</option>
+            <option value="absent">غياب</option>
+          </select>
         </label>
-        <button id="manualSubmit">تسجيل</button>
-        <small>إذا كان المتصفح لا يدعم <code>BarcodeDetector</code> سيتم الاعتماد على الإدخال اليدوي.</small>
+        <button id="toggleCam">تشغيل/إيقاف الكاميرا</button>
       </div>
-    </section>
+    </div>
+    <div class="manual">
+      <label>أدخل المعرّف يدوياً<input id="manualCode" placeholder="EMP-001"></label>
+      <button id="manualSubmit">تسجيل</button>
+    </div>
+  </section>
 
-    <!-- Employees Tab -->
-    <section id="employees" class="tab">
-      <h2>إدارة الموظفين</h2>
-      <form id="empForm" class="card">
-        <label>الاسم الكامل
-          <input id="empName" required placeholder="مثال: أحمد علي">
-        </label>
-        <label>المعرف (يظهر في الكود)
-          <input id="empId" placeholder="مثال: EMP-001">
-        </label>
-        <button type="submit">إضافة/تحديث</button>
-      </form>
-
-      <div class="actions">
-        <button id="downloadEmployees">تنزيل قائمة الموظفين (CSV)</button>
-        <button id="clearEmployees" class="danger">حذف جميع الموظفين</button>
-      </div>
-
-      <table id="empTable">
-        <thead>
-          <tr><th>#</th><th>الاسم</th><th>المعرف</th><th>رابط سريع</th><th>إجراءات</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-
-      <div class="help card">
-        <h3>كيف أنشئ QR للموظف؟</h3>
-        <ol>
-          <li>انسخ <b>المعرف</b> الخاص بالموظف (مثال: EMP-001).</li>
-          <li>استخدم أي مولّد QR لإنتاج كود يحتوي <b>نصاً</b> يساوي المعرف تماماً.</li>
-          <li>عند مسح الكود، سيقرأ النظام المعرف ويسجل الدخول/الخروج.</li>
-        </ol>
-        <p>إذا كان متصفحك يدعم <code>BarcodeDetector</code> فسيعمل المسح بالكاميرا مباشرة. وإلا يمكنك إدخال المعرف يدوياً.</p>
-      </div>
-    </section>
-
-    <!-- Logs Tab -->
-    <section id="logs" class="tab">
-      <h2>سجلات الحضور والانصراف</h2>
-      <div class="filters">
-        <label>بحث:
-          <input id="searchLogs" placeholder="اسم/معرف">
-        </label>
-        <label>التاريخ:
-          <input id="dateFilter" type="date">
-        </label>
-      </div>
-      <table id="logTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>الاسم</th>
-            <th>المعرف</th>
-            <th>النوع</th>
-            <th>التاريخ</th>
-            <th>الوقت</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <div class="actions">
-        <button id="exportCSV">تصدير CSV</button>
-        <button id="clearLogs" class="danger">حذف جميع السجلات</button>
-      </div>
-    </section>
-
-    <!-- Settings Tab -->
-    <section id="settings" class="tab">
-      <h2>الإعدادات</h2>
-      <div class="card">
-        <label>اسم الشركة/المؤسسة
-          <input id="orgName" placeholder="مثال: شركة المستقبل">
-        </label>
-        <label>المنطقة الزمنية (اختياري)
-          <input id="tz" placeholder="مثال: Africa/Cairo">
-        </label>
-        <button id="saveSettings">حفظ الإعدادات</button>
-      </div>
-      <div class="note">
-        <p>هذا النظام يعمل محلياً ويخزن البيانات في متصفحك عبر <b>localStorage</b>. لا حاجة لخادم.</p>
-        <p>للاستخدام المؤسسي مع عدة فروع/أجهزة، يُنصح لاحقاً بربط قاعدة بيانات سحابية (مثل Firebase) — يمكنني تجهيز نسخة بذلك عند الحاجة.</p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <span>© نظام حضور بسيط — يعمل دون إنترنت</span>
-  </footer>
-
-  <script src="app.js"></script>
+  <section class="card">
+    <h2>سجلات الحضور</h2>
+    <input id="searchLogs" placeholder="بحث باسم أو معرف">
+    <table id="logTable"><thead><tr><th>#</th><th>الاسم</th><th>المعرف</th><th>النوع</th><th>التاريخ</th><th>الوقت</th></tr></thead><tbody></tbody></table>
+    <div class="actions"><button id="exportCSV">تصدير CSV</button><button id="clearLogs" class="danger">حذف السجلات</button></div>
+  </section>
+</main>
+<footer>© نظام حضور بسيط</footer>
+<script src="app.js"></script>
 </body>
 </html>
