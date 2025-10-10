@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mahmoud Ahmed — OSM Counter Tactic Bot</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --accent:#1f8ef1;
+      --muted:#98a0b3;
+      --glass: rgba(255,255,255,0.03);
+      --radius:12px;
+      --maxw:980px;
+      font-family: "Segoe UI", Roboto, "Noto Naskh Arabic", system-ui, sans-serif;
+      direction: rtl;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#071025 0%, #082233 100%);
+      color:#e6eef8;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+    .wrap{width:100%;max-width:var(--maxw);}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;}
+    .brand{display:flex;gap:12px;align-items:center;}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#6dd3ff);
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:#032033;font-size:18px;
+      box-shadow:0 6px 18px rgba(31,142,241,0.12);}
+    h1{margin:0;font-size:18px}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    main{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start;}
+    .card{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:0 6px 24px rgba(2,6,23,0.6);}
+    label{display:block;font-size:13px;margin-bottom:8px;color:var(--muted)}
+    select,input,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);
+      background:var(--glass);color:inherit;font-size:14px;}
+    .small{font-size:13px;color:var(--muted);margin-top:6px}
+    .btn{display:inline-block;background:var(--accent);color:#032033;padding:10px 14px;border-radius:10px;border:none;font-weight:700;
+      cursor:pointer;margin-top:10px;}
+    .result{white-space:pre-wrap;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));
+      padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);color:#e6f5ff;font-size:14px;}
+    .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chip{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:13px;color:var(--muted)}
+    footer{margin-top:14px;color:var(--muted);font-size:13px;text-align:center}
+    @media(max-width:880px){main{grid-template-columns:1fr}.brand h1{font-size:16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">MA</div>
+        <div>
+          <h1>Mahmoud Ahmed — OSM Counter Tactic Bot</h1>
+          <p class="lead">اختر تشكيلة وستايل الخصم واحصل على تكتيك مضاد سريع قابل للتعديل</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="chip">الهدف: مضاد تكتيكات OSM</div>
+        <div class="chip">النسخة: 1.0</div>
+      </div>
+    </header>
+    <main>
+      <aside class="card">
+        <label>تشكيلة الخصم</label>
+        <select id="oppFormation">
+          <option value="4-4-2">4-4-2</option>
+          <option value="4-3-3">4-3-3</option>
+          <option value="3-5-2">3-5-2</option>
+          <option value="4-2-3-1">4-2-3-1</option>
+          <option value="5-3-2">5-3-2</option>
+          <option value="4-1-4-1">4-1-4-1</option>
+          <option value="Custom">تشكيلة مخصصة</option>
+        </select>
+        <label style="margin-top:12px">ستايل لعب الخصم</label>
+        <select id="oppStyle">
+          <option value="Attacking">هجومي</option>
+          <option value="Defensive">دفاعي</option>
+          <option value="Possession">سيطرة/استحواذ</option>
+          <option value="Counter">هجمات مرتدة</option>
+          <option value="Balanced">متوازن</option>
+          <option value="HighPress">ضغط عالي</option>
+        </select>
+        <label style="margin-top:12px">قوة الفريق (1-10)</label>
+        <input id="oppStrength" type="number" min="1" max="10" value="6" />
+        <label style="margin-top:12px">تفضيلك (نمط المضاد)</label>
+        <select id="yourPreference">
+          <option value="Aggressive">ضغط هجومي</option>
+          <option value="SolidDefense">دفاع صلب</option>
+          <option value="CounterAttack">مرتدات</option>
+          <option value="Control">استحواذ</option>
+        </select>
+        <button class="btn" id="generateBtn">اوجد تكتيك مضاد</button>
+        <div class="small">ملاحظة: هذا بوت اقتراحي — عدّل الخطط حسب مستوى لاعبيك ووقائع المباراة.</div>
+      </aside>
+      <section class="card">
+        <h3>الاقتراحات</h3>
+        <div id="result" class="result">اضغط "اوجد تكتيك مضاد" لعرض النتيجة هنا.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="copyBtn">انسخ التكتيك</button>
+          <button class="btn" id="downloadBtn">حفظ كملف نصي</button>
+          <button class="btn" id="resetBtn" style="background:#2a3746;color:#fff">اعادة ضبط</button>
+        </div>
+        <footer>موقع بوت بواسطة <strong>Mahmoud Ahmed</strong> — تم التصميم لمساعدتك بسرعة</footer>
+      </section>
+    </main>
+  </div>
+  <script>
+    const suggestions = {"4-4-2":{"note":"4-4-2 عادة قوي في التوازن ويفتح مساحات بالأجنحة عند الضغط العالي.","counters":{"Attacking":{"formation":"4-2-3-1","instructions":["تكتيف دفاعي متوازن + خط وسط مزدوج (DM) لحجب تمريرات الخطر.","سد المساحات بين الخطوط وتعليم الظهيرين بالثبات دفاعياً عند التقدم.","انقاض الهجمات من المرتدات مع أجنحة سريعة."]},"Defensive":{"formation":"4-3-3","instructions":["رفع ضغط خاص عند خط الدفاع الخصم.","زيادة العرض الهجومي ومرونة واحدة من خط الوسط."]}}},"default":{"note":"خريطة عامة.","counters":{"Attacking":{"formation":"4-2-3-1","instructions":["اجعل وسطك مزدوج الدفاع.","اعمل على المرتدات مع أجنحة سريعة."]}}}};
+    function generateTactic(){const oppForm=document.getElementById('oppFormation').value;const oppStyle=document.getElementById('oppStyle').value;const base=suggestions[oppForm]||suggestions['default'];const styleMap=base.counters[oppStyle]||Object.values(base.counters)[0];const text=`تشكيلة الخصم: ${oppForm}\nستايل: ${oppStyle}\nالتكتيك المقترح: ${styleMap.formation}\n\n`+styleMap.instructions.map((s,i)=>`${i+1}. ${s}`).join("\n");return text;}
+    const resultEl=document.getElementById('result');
+    document.getElementById('generateBtn').onclick=()=>{resultEl.textContent=generateTactic();};
+    document.getElementById('copyBtn').onclick=()=>{navigator.clipboard.writeText(resultEl.textContent);alert('تم النسخ');};
+    document.getElementById('downloadBtn').onclick=()=>{const blob=new Blob([resultEl.textContent],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='osm-counter-tactic.txt';a.click();};
+    document.getElementById('resetBtn').onclick=()=>{resultEl.textContent='اضغط "اوجد تكتيك مضاد" لعرض النتيجة هنا.';};
+  </script>
+</body>
+</html>
